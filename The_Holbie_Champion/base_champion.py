@@ -14,21 +14,24 @@ class BaseChampion:
 
     def level_up(self):
         if self.current_exp >= 5:
-            self.total_exp += self.current_exp
             self.level += 1
             self.stats_points += 3
             self.current_exp = 0
             self.nv_exp = 5
+            self.total_exp = 5 * self.level + self.current_exp
 
 
     def gain_exp(self):
         self.current_exp += 1
         self.nv_exp -= 1
-        if self.nv_exp == 0 and self.current_exp == 5:
+        self.total_exp += 1
+        if self.nv_exp <= 0 and self.current_exp >= 5:
             self.level_up()
 
     def death(self):
-        self.current_exp /= 2
+        self.current_exp = int(self.current_exp / 2)
+        self.nv_exp = 5 - self.current_exp
+        self.total_exp = 5 * self.level + self.current_exp
 
     def save_character(self):
         char_dict = {}
@@ -64,12 +67,13 @@ class BaseChampion:
     def __str__(self):
         string = ""
         string += "====================== Type =====================\n"
-        string += "{} {} - {} {}\n".format(type(self).__name__, self.name, self.raze, self.gender)
+        string += "{:<8} {:^11} - {:<6} {:^6} - level:{:>3}\n".format(type(self).__name__, self.name, self.raze, self.gender, self.level)
         string += "=================== Experience ==================\n"
-        string += "Total EXP:{} - Current EXP:{} - next level EXP:{}\n".format(self.total_exp, self.current_exp, self.nv_exp)
+        string += "Total EXP:{:>3} - Current EXP:{} - next level EXP:{}\n".format(self.total_exp, self.current_exp, self.nv_exp)
         string += "===================== Stats =====================\n"
         for key,value in self.stats.items():
-            string +="{}: {}\n".format(key, value)
+            string +="{:<20} {:>26}\n".format(key, value)
+        string += "=================================================\n"
         string += "Stats points: {}\n".format(self.stats_points)
         string += "=================================================\n"
         return string
