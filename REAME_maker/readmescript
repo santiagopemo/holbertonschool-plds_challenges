@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# README maker
+file=./rear
+dest_file=./README.md
+title="$(cat $file | head -n 1)"
+echo "# $title" > $dest_file
+head=false
+resources=false
+tasks=false
+advanced=false
+more_info=false
+des=false
+description=""
+while read line
+do
+    if [[ $line == "Resources" ]]
+    then
+        echo "## Resources :books:" >> $dest_file
+        head=true
+        resources=true
+        continue
+    fi
+    if [[ $line == "More Info" ]]
+    then 
+        more_info=true
+    fi
+    if [[ $line == "Tasks" || $line == "Quiz questions" ]] && [[ $head == true ]]
+    then
+        echo "## Tasks" >> $dest_file
+        echo "### Mandatory :page_with_curl:" >> $dest_file 
+        head=false
+        tasks=true
+    fi
+    if [[ $advanced == false && "${line: -8}" == "advanced" ]]
+    then
+        echo "### Advance :muscle:" >> $dest_file
+        advanced=true
+    fi
+    if [ $head == true ]
+    then
+        if [[ $line == "Learning Objectives" ||  $line == "Requirements" || $line == "More Info"  || $line == "Github" || $line == "Tests" ]]
+        then
+        if [[ $line == "Learning Objectives" ]]
+        then
+            echo "## Learning Objectives :bulb:" >> $dest_file
+        elif [[ $line == "Requirements" ]]
+        then
+            echo "## Requirements :white_check_mark:" >> $dest_file
+        else
+            echo "## $line" >> $dest_file
+        fi
+            resources=false
+        elif [[ $line == "General" || $line == "Read or watch:" || $line == "man or help:" || $line == "Shellcheck" || $line == "Python Scripts" || $line == "Python Unit Tests" || $line == "Data Structure and Functions" || $line == "Execution" ]]
+        then
+            echo "### $line" >> $dest_file
+        elif [[ $line != "" && $more_info == false && $resources == false ]]
+        then
+            echo "* $line" >> $dest_file
+        elif [[ $line != "" && $more_info == false && $resources == true &&  $line != "Resources" ]]
+        then
+            echo "* [$line]()" >> $dest_file
+        else
+            echo "$line" >> $dest_file
+        fi
+    fi
+    if [[ $tasks == true ]]
+    then
+        if [[ "${line: -9}" == "mandatory" || "${line: -8}" == "advanced" ]]
+        then
+            #echo "- [x] **["${line:0:-10}"](./)**" >> $dest_file
+            echo -n "- [x] **["${line:0:-10}"](./" >> $dest_file            
+        fi
+        if [[ ("${line: -1}" == "." || "${line: -1}" == ":") ]] && [[ $des == false ]]
+        then
+            description=$line
+            des=true
+        fi
+        if [[ "${line:0:5}" == "File:" ]]
+        then
+            file=$(echo $line | cut -d' ' -f2)
+            if [[ ${file: -1} == "," ]]
+            then
+                file=${file: 0: -1}
+            fi
+            echo "$file)** - ${description: 0: -1}" >> $dest_file
+            des=false
+        fi
+    fi
+done < $file
+
+echo "## Author :pencil:" >> $dest_file
+echo "**Santiago Peña Mosquera** - twitter [@Santiag11470161](https://twitter.com/Santiag11470161) - LinkedIn [Santiago Peña Mosquera](https://www.linkedin.com/in/santiago-pe%C3%B1a-mosquera-abaa20196/)" >> $dest_file
