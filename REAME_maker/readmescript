@@ -84,6 +84,7 @@ do
             fi
             echo "$file)** - ${description: 0: -1}" >> $dest_file
             des=false
+	    touch $file
         fi
     fi
 done < $file
