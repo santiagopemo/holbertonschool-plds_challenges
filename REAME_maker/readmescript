@@ -84,7 +84,12 @@ do
             fi
             echo "$file)** - ${description: 0: -1}" >> $dest_file
             des=false
-	    touch $file
+	    # touch $file
+    	    dotnet new console --output $file
+	    mv "${file}Program.cs" "${file}${file: 0: -1}.cs"
+	    task_num=$(echo $file | cut -d"-" -f1)
+	    touch  "${file}${task_num}-main.cs"
+    	    dotnet build $file
         fi
     fi
 done < $file
